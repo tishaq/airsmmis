@@ -17,8 +17,6 @@ class Summary extends Component {
     rangeStopDate: dateFormat(new Date())
   };
   shouldComponentUpdate(nextProps, nextState) {
-    // console.log(this.state.rangeStartDate, nextState.rangeStartDate);
-
     if (this.state.rangeStartDate !== nextState.rangeStartDate) {
       return false;
     }
@@ -106,15 +104,12 @@ class Summary extends Component {
     };
 
     const handleDateChangeStart = event => {
-      console.log(event.target.value);
       this.setState({
         rangeStartDate: event.target.value
       });
     };
 
     const handleDateChangeEnd = event => {
-      console.log(event.target.value);
-
       this.setState({
         rangeStopDate: event.target.value
       });
@@ -158,7 +153,6 @@ class Summary extends Component {
               );
             }
             if (error) {
-              console.log(error);
               return (
                 <div className="main">
                   <img src={errorImg} alt="Error" />

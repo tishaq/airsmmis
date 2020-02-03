@@ -116,7 +116,7 @@ class Remit extends Component {
       const orderId = d.getTime() + "-1";
       const totalAmount = amount;
 
-      var apiHash = CryptoJS.SHA512(
+      const apiHash = CryptoJS.SHA512(
         merchantId + serviceTypeId + orderId + totalAmount + apiKey
       );
       let generatedRRR;

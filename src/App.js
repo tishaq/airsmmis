@@ -122,7 +122,6 @@ class App extends Component {
       );
     };
     const handleDateChange = datetime => {
-      console.log(dateFormat(datetime));
       this.setState({
         singleDay: datetime
       });
@@ -155,7 +154,6 @@ class App extends Component {
               );
             }
             if (error) {
-              console.log(error);
               return (
                 <div className="main">
                   <img src={errorImg} alt="Error" />
