@@ -8,14 +8,23 @@ import { dateFormat, currencyFormat } from "./utils";
 import errorImg from "./error.png";
 import loadingImg from "./loading.gif";
 import nodataImg from "./nodata.jpg";
-import Datepicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-class App extends Component {
+class Summary extends Component {
   state = {
-    todayDate: new Date(),
-    singleDay: new Date()
+    singleDay: dateFormat(new Date()),
+    rangeStartDate: dateFormat(new Date()),
+    rangeStopDate: dateFormat(new Date())
   };
+  shouldComponentUpdate(nextProps, nextState) {
+    // console.log(this.state.rangeStartDate, nextState.rangeStartDate);
+
+    if (this.state.rangeStartDate !== nextState.rangeStartDate) {
+      return false;
+    }
+
+    return true;
+  }
   render() {
     const getData = async () => {
       let nextToken = null;
@@ -23,15 +32,15 @@ class App extends Component {
       let errors;
       let raw = {};
       let tickets = {};
-      const date = dateFormat(this.state.singleDay);
-
+      const startDay = this.state.rangeStartDate;
+      const endDay = this.state.rangeStopDate;
       try {
         do {
           raw = await API.graphql(
             graphqlOperation(queries.listJummApps, {
               filter: {
                 date: {
-                  beginsWith: date
+                  between: [startDay, endDay]
                 }
               },
               limit: 10000,
@@ -43,88 +52,71 @@ class App extends Component {
         } while (nextToken);
         results.forEach(t => {
           if (!tickets[t.deviceName]) {
-            tickets[t.deviceName] = {};
+            tickets[t.deviceName] = [];
           }
-          if (!tickets[t.deviceName][t.receiptType]) {
-            tickets[t.deviceName][t.receiptType] = {};
-          }
-          if (!tickets[t.deviceName][t.receiptType][t.itemType]) {
-            tickets[t.deviceName][t.receiptType][t.itemType] = [];
-          }
-          tickets[t.deviceName][t.receiptType][t.itemType].push(
-            parseInt(t.fee)
-          );
+          tickets[t.deviceName].push(parseInt(t.fee));
         });
       } catch (error) {
         errors = error;
       }
+
       return { tickets, errors };
     };
     const parseData = data => {
       let html = "";
+      html += `
+        <div class="card-list">
+          <div class="card-title">Transction Summary ${this.state.rangeStartDate} ${this.state.rangeStopDate}</div>
+          <div class="card-body">
+            <table>
+              <thead>
+                <tr>
+                  <th>S/N</th>
+                  <th>Revenue Source</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>`;
+      let total = 0;
       Object.entries(data)
         .sort()
-        .forEach(tck => {
-          let total = 0;
-          html += `<div class="card">
-            <div class="card-title">${tck[0]}</div>
-            <div class="card-body">
-              <table>
-                <thead>
-                  <tr>
-                    <th>S/N</th>
-                    <th>Item Name</th>
-                    <th>Fee</th>
-                    <th>Quantity</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>`;
-
-          Object.entries(tck[1])
-            .sort()
-            .forEach(cat => {
-              html += ` <tbody>
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td>${cat[0]}</td>
-                      <td></td>
-                      <td></td>
-                    </tr>`;
-              Object.entries(cat[1])
-                .sort()
-                .forEach((item, index) => {
-                  const amount = item[1].reduce((x, y) => x + y);
-                  html += ` <tr>
-                        <td>${index + 1}</td>
-                        <td>${item[0]}</td>
-                        <td>${currencyFormat(item[1][0])}</td>
-                        <td>${item[1].length}</td>
-                        <td>${currencyFormat(amount)}</td>
-                      </tr>`;
-                  total += amount;
-                });
-              html += `<tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>Total</td>
-                <td>${currencyFormat(total)}</td>
-              </tr>
-                </tbody>`;
-            });
-          html += ` </table>
-            </div>
-          </div>`;
+        .forEach((tck, index) => {
+          const amount = tck[1].reduce((x, y) => x + y);
+          html += ` <tr>
+            <td>${index + 1}</td>
+            <td>${tck[0]}</td>
+            <td>${currencyFormat(amount)}</td>
+          </tr>`;
+          total += amount;
         });
+
+      html += `<tr>
+        <td>Grand Total</td>
+        <td></td>
+        <td>${currencyFormat(total)}</td>
+      </tr>
+         </tbody>
+            </table>
+          </div>
+        </div>`;
+
       return (
         <div className="main" dangerouslySetInnerHTML={{ __html: html }}></div>
       );
     };
-    const handleDateChange = datetime => {
-      console.log(dateFormat(datetime));
+
+    const handleDateChangeStart = event => {
+      console.log(event.target.value);
       this.setState({
-        singleDay: datetime
+        rangeStartDate: event.target.value
+      });
+    };
+
+    const handleDateChangeEnd = event => {
+      console.log(event.target.value);
+
+      this.setState({
+        rangeStopDate: event.target.value
       });
     };
 
@@ -134,12 +126,23 @@ class App extends Component {
         <div className="header">
           <form>
             <div className="search-items">
-              <p>Select date to view transaction summary</p>
-
+              <p>View Transaction Summary : </p>
               <div>
-                <Datepicker
-                  selected={this.state.singleDay}
-                  onChange={handleDateChange}
+                From:
+                <input
+                  type="date"
+                  name="singleDay"
+                  min="2010-01-01"
+                  value={this.state.rangeStartDate}
+                  onChange={handleDateChangeStart}
+                />
+                To:
+                <input
+                  type="date"
+                  name="singleDay"
+                  min="2010-01-01"
+                  value={this.state.rangeStopDate}
+                  onChange={handleDateChangeEnd}
                 />
               </div>
             </div>
@@ -163,7 +166,7 @@ class App extends Component {
               );
             }
             if (data) {
-              if (data.errors === null) {
+              if (data.errors) {
                 return (
                   <div className="main">
                     <img src={errorImg} alt="Error" />
@@ -191,4 +194,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default Summary;

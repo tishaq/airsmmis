@@ -23,15 +23,14 @@
   --light: #faf4f4;
   --dark: green;
   --ligthdark: rgba(226, 246, 231, 0.8);
-  --headingColor: rgb(197, 197, 167);
+  --headingColor: rgb(10, 61, 29);
   --contentColor: rgb(2, 41, 5);
 }
 input,
 select {
   border: 2px solid var(--dark);
   padding: 0.3em 1em;
-  border-radius: 10px;
-  margin: 10px;
+  border-radius: 40px;
 }
 select,
 select option {
@@ -43,7 +42,6 @@ li,
 a,
 button {
   text-decoration: none;
-  font-size: 1.1em;
 }
 
 .logo {
@@ -169,21 +167,7 @@ button {
 }
 @media screen and (max-width: 1200px) {
   .card {
-    grid-column: 1;
-  }
-  .content {
-    display: grid;
-    grid-template-areas:
-      "title"
-      "header"
-      "main"
-      "partner"
-      "footer ";
-    grid-template-columns: 100%;
-  }
-
-  .card-body table {
-    width: 50%;
+    grid-column: span 2;
   }
 }
 /**** end mobile ***/
@@ -198,7 +182,7 @@ button {
   grid-template-columns: 5% 90% 5%;
 }
 .content > div {
-  padding: 1rem 1rem;
+  padding: 1.2rem 4rem;
 }
 .title {
   grid-area: title;
@@ -218,12 +202,9 @@ button {
 .card-title {
   background-color: var(--dark);
   padding: 0.6rem 2rem;
-  font-size: 1.8em;
 }
 .card-body {
   display: flex;
-  align-content: center;
-  vertical-align: middle;
 }
 .card-body a,
 .card-body td,
@@ -242,10 +223,10 @@ label {
 .main {
   grid-area: main;
   display: grid;
-  grid-template-columns: 1;
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 2rem;
   background-color: var(--ligthdark);
-  border-radius: 20px;
+  border-radius: 50px;
 }
 .sidebar {
   grid-area: sidebar;
@@ -272,11 +253,10 @@ label {
 }
 .search-items input[type="button"] {
   background-color: var(--dark);
-  border-radius: 20px;
+  border-radius: 40px;
   padding: 0.5rem 2rem;
-  border: 0px solid var(--dark);
+  border: 1px solid var(--dark);
   cursor: pointer;
-  margin: 10px;
 }
 .search-items input[type="button"]:hover {
   background-color: var(--light);
@@ -292,9 +272,8 @@ label {
 }
 .card-body table tr td,
 th {
-  font-size: 1em;
-  padding-left: 10px;
-  text-align: left;
+  font-size: 1.2em;
+  text-align: center;
 }
 /** end gate page styles **/
 /** facility page styles **/
@@ -309,10 +288,10 @@ th {
 /** end facility page styles **/
 /** register page styles **/
 .form-item {
-  grid-column: 1;
+  grid-column: span 2;
 }
 .form-item-button {
-  grid-column: span 1;
+  grid-column: span 2;
   display: flex;
   justify-content: center;
 }
@@ -321,7 +300,6 @@ select,
 option {
   width: 100%;
   color: var(--contentColor);
-  margin: 10px;
 }
 .form-item-button input[type="button"] {
   background-color: var(--dark);
@@ -341,7 +319,9 @@ option {
 
 /** end register page styles **/
 /** facilityList page styles **/
-
+.card-list {
+  grid-column: span 2;
+}
 /** end facilityList page styles **/
 /*** facilityDetail page styles **/
 .card-detail {
