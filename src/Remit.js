@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import * as queries from "./graphql/queries";
+import * as mutations from "./graphql/mutations";
 import Header from "./Header";
 import Footer from "./Footer";
 import { Async } from "react-async";
@@ -32,7 +33,7 @@ class Remit extends Component {
       try {
         do {
           raw = await API.graphql(
-            graphqlOperation(queries.listJummApps, {
+            graphqlOperation(queries.listTickets, {
               filter: {
                 date: {
                   beginsWith: date
@@ -42,8 +43,8 @@ class Remit extends Component {
               nextToken: nextToken
             })
           );
-          nextToken = raw.data.listJummApps.nextToken;
-          raw.data.listJummApps.items.map(value => results.push(value));
+          nextToken = raw.data.listTickets.nextToken;
+          raw.data.listTickets.items.map(value => results.push(value));
         } while (nextToken);
         results.forEach(t => {
           if (!tickets[t.receiptType]) {
@@ -147,6 +148,20 @@ class Remit extends Component {
         data = JSON.parse(data);
         if (data.statuscode === "025") {
           generatedRRR = data.RRR;
+          const mutate = await API.graphql(
+            graphqlOperation(mutations.createRemita, {
+              input: {
+                rrr: data.RRR,
+                date: dateFormat(new Date()),
+                totalAmount: totalAmount,
+                payerName: this.state.name,
+                payerEmail: this.state.email,
+                payerPhone: this.state.phone,
+                status: false
+              }
+            })
+          );
+          console.log(mutate);
         }
       }
 

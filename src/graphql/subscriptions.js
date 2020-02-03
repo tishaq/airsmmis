@@ -1,72 +1,231 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateJummApp = `subscription OnCreateJummApp(
-  $id: String
-  $receiptType: String
-  $itemType: String
-  $fee: String
-  $deviceName: String
-) {
-  onCreateJummApp(
-    id: $id
-    receiptType: $receiptType
-    itemType: $itemType
-    fee: $fee
-    deviceName: $deviceName
-  ) {
+export const onCreateFacility = `subscription OnCreateFacility {
+  onCreateFacility {
     id
-    receiptType
-    itemType
-    fee
+    facilityType
+    currentOwner
+    currentOwnerContact
+    previousOwner
+    previousOwnerContact
+    createdAt
+    updateAt
+    facilityAmount
+    amountPaid
+    paymentRecord {
+      nextToken
+    }
+  }
+}
+`;
+export const onUpdateFacility = `subscription OnUpdateFacility {
+  onUpdateFacility {
+    id
+    facilityType
+    currentOwner
+    currentOwnerContact
+    previousOwner
+    previousOwnerContact
+    createdAt
+    updateAt
+    facilityAmount
+    amountPaid
+    paymentRecord {
+      nextToken
+    }
+  }
+}
+`;
+export const onDeleteFacility = `subscription OnDeleteFacility {
+  onDeleteFacility {
+    id
+    facilityType
+    currentOwner
+    currentOwnerContact
+    previousOwner
+    previousOwnerContact
+    createdAt
+    updateAt
+    facilityAmount
+    amountPaid
+    paymentRecord {
+      nextToken
+    }
+  }
+}
+`;
+export const onCreatePaymentRecord = `subscription OnCreatePaymentRecord {
+  onCreatePaymentRecord {
+    id
+    paidAt
+    monthsPaid
+    amountPaid
+    nextDueDate
+    facility {
+      id
+      facilityType
+      currentOwner
+      currentOwnerContact
+      previousOwner
+      previousOwnerContact
+      createdAt
+      updateAt
+      facilityAmount
+      amountPaid
+    }
+  }
+}
+`;
+export const onUpdatePaymentRecord = `subscription OnUpdatePaymentRecord {
+  onUpdatePaymentRecord {
+    id
+    paidAt
+    monthsPaid
+    amountPaid
+    nextDueDate
+    facility {
+      id
+      facilityType
+      currentOwner
+      currentOwnerContact
+      previousOwner
+      previousOwnerContact
+      createdAt
+      updateAt
+      facilityAmount
+      amountPaid
+    }
+  }
+}
+`;
+export const onDeletePaymentRecord = `subscription OnDeletePaymentRecord {
+  onDeletePaymentRecord {
+    id
+    paidAt
+    monthsPaid
+    amountPaid
+    nextDueDate
+    facility {
+      id
+      facilityType
+      currentOwner
+      currentOwnerContact
+      previousOwner
+      previousOwnerContact
+      createdAt
+      updateAt
+      facilityAmount
+      amountPaid
+    }
+  }
+}
+`;
+export const onCreateTicket = `subscription OnCreateTicket {
+  onCreateTicket {
+    id
     deviceName
+    itemType
+    receiptType
+    fee
     date
   }
 }
 `;
-export const onUpdateJummApp = `subscription OnUpdateJummApp(
-  $id: String
-  $receiptType: String
-  $itemType: String
-  $fee: String
-  $deviceName: String
-) {
-  onUpdateJummApp(
-    id: $id
-    receiptType: $receiptType
-    itemType: $itemType
-    fee: $fee
-    deviceName: $deviceName
-  ) {
+export const onUpdateTicket = `subscription OnUpdateTicket {
+  onUpdateTicket {
     id
-    receiptType
-    itemType
-    fee
     deviceName
+    itemType
+    receiptType
+    fee
     date
   }
 }
 `;
-export const onDeleteJummApp = `subscription OnDeleteJummApp(
-  $id: String
-  $receiptType: String
-  $itemType: String
-  $fee: String
-  $deviceName: String
+export const onDeleteTicket = `subscription OnDeleteTicket {
+  onDeleteTicket {
+    id
+    deviceName
+    itemType
+    receiptType
+    fee
+    date
+  }
+}
+`;
+export const onCreateRemita = `subscription OnCreateRemita(
+  $id: ID
+  $rrr: String
+  $date: String
+  $totalAmount: Int
+  $payerName: String
 ) {
-  onDeleteJummApp(
+  onCreateRemita(
     id: $id
-    receiptType: $receiptType
-    itemType: $itemType
-    fee: $fee
-    deviceName: $deviceName
+    rrr: $rrr
+    date: $date
+    totalAmount: $totalAmount
+    payerName: $payerName
   ) {
     id
-    receiptType
-    itemType
-    fee
-    deviceName
+    rrr
     date
+    totalAmount
+    payerName
+    payerEmail
+    payerPhone
+    status
+  }
+}
+`;
+export const onUpdateRemita = `subscription OnUpdateRemita(
+  $id: ID
+  $rrr: String
+  $date: String
+  $totalAmount: Int
+  $payerName: String
+) {
+  onUpdateRemita(
+    id: $id
+    rrr: $rrr
+    date: $date
+    totalAmount: $totalAmount
+    payerName: $payerName
+  ) {
+    id
+    rrr
+    date
+    totalAmount
+    payerName
+    payerEmail
+    payerPhone
+    status
+  }
+}
+`;
+export const onDeleteRemita = `subscription OnDeleteRemita(
+  $id: ID
+  $rrr: String
+  $date: String
+  $totalAmount: Int
+  $payerName: String
+) {
+  onDeleteRemita(
+    id: $id
+    rrr: $rrr
+    date: $date
+    totalAmount: $totalAmount
+    payerName: $payerName
+  ) {
+    id
+    rrr
+    date
+    totalAmount
+    payerName
+    payerEmail
+    payerPhone
+    status
   }
 }
 `;

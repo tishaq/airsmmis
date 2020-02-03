@@ -37,7 +37,7 @@ class Summary extends Component {
       try {
         do {
           raw = await API.graphql(
-            graphqlOperation(queries.listJummApps, {
+            graphqlOperation(queries.listTickets, {
               filter: {
                 date: {
                   between: [startDay, endDay]
@@ -47,8 +47,8 @@ class Summary extends Component {
               nextToken: nextToken
             })
           );
-          nextToken = raw.data.listJummApps.nextToken;
-          raw.data.listJummApps.items.map(value => results.push(value));
+          nextToken = raw.data.listTickets.nextToken;
+          raw.data.listTickets.items.map(value => results.push(value));
         } while (nextToken);
         results.forEach(t => {
           if (!tickets[t.deviceName]) {
