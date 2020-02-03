@@ -8,9 +8,9 @@ export default class Router extends Component {
     return (
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" component={Remit} />
-          <Route path="/remit" component={Remit} />
-          <Route path="/summary" component={Summary} />
+          <Route exact path="/" component={App} />
+          <Route exact path="/remit" component={Remit} />
+          <Route exact path="/summary" component={Summary} />
         </Switch>
       </BrowserRouter>
     );
