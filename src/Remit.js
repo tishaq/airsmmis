@@ -11,61 +11,134 @@ import loadingImg from "./loading.gif";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import "react-datepicker/dist/react-datepicker.css";
+import RRRForm from "./RRRForm";
 
 class Remit extends Component {
   state = {
     todayDate: new Date(),
     singleDay: dateFormat(new Date()),
     load: false,
-    rrr: "",
+    rrr: null,
     generateRRRurl:
       "https://remitademo.net/remita/exapp/api/v1/send/api/echannelsvc/merchant/api/paymentinit"
   };
   render() {
-    const getData = async ({ date }) => {
-      let nextToken = null;
-      let results = [];
-      let errors;
-      let raw = {};
-      let tickets = {};
-      let total = 0;
+    const getData = async ({ rrr, date, deviceName }) => {
+      if (rrr !== null) {
+        const result = await checkRRRStatus(rrr);
 
-      try {
-        do {
-          raw = await API.graphql(
-            graphqlOperation(queries.listTickets, {
-              filter: {
-                date: {
-                  beginsWith: date
-                }
-              },
-              limit: 10000,
-              nextToken: nextToken
+        console.log(typeof result, result);
+        const html = `
+        <div class="card-list">
+        <div class="card-title">Payment Status: <i style="color: white"> ${
+          result.message
+        }</i></div>
+        <div class="card-body">
+       
+          <table>
+            
+              <tr>
+                <td>RRR Number</td>
+                <td>${result.RRR}</td>       
+          </tr>
+          <tr>
+                <td>Amount</td>
+                <td>${currencyFormat(result.amount)}</td>       
+          </tr>
+          <tr>
+                <td>Transaction Time</td>
+                <td>${result.transactiontime}</td>       
+          </tr>
+          <tr>
+                <td>Order Id:</td>
+                <td>${result.orderId}</td>       
+          </tr>
+            </table>
+            </div>
+            </div>
+        `;
+        if (result.status === "00") {
+          const mutate = await API.graphql(
+            graphqlOperation(mutations.updateRemita, {
+              input: {
+                id: result.RRR + result.orderId,
+                status: true
+              }
             })
           );
-          nextToken = raw.data.listTickets.nextToken;
-          raw.data.listTickets.items.map(value => results.push(value));
-        } while (nextToken);
-        results.forEach(t => {
-          if (!tickets[t.receiptType]) {
-            tickets[t.receiptType] = [];
+          console.log(mutate);
+        }
+        return {
+          data: {
+            result: <div dangerouslySetInnerHTML={{ __html: html }}></div>
           }
-          tickets[t.receiptType].push(parseInt(t.fee));
-          total += parseInt(t.fee);
-        });
-      } catch (error) {
-        errors = error;
-      }
-      const rrr = await generateRRR(total);
+        };
+      } else {
+        let nextToken = null;
+        let results = [];
+        let errors;
+        let raw = {};
+        let tickets = {};
+        let total = 0;
+        console.log(date, deviceName);
+        try {
+          do {
+            raw = await API.graphql(
+              graphqlOperation(queries.listTickets, {
+                filter: {
+                  and: [
+                    {
+                      deviceName: {
+                        eq: deviceName
+                      }
+                    },
+                    {
+                      date: {
+                        beginsWith: date
+                      }
+                    }
+                  ]
+                },
+                limit: 10000,
+                nextToken: nextToken
+              })
+            );
+            nextToken = raw.data.listTickets.nextToken;
+            raw.data.listTickets.items.map(value => results.push(value));
+          } while (nextToken);
+          results.forEach(t => {
+            if (!tickets[t.receiptType]) {
+              tickets[t.receiptType] = [];
+            }
+            tickets[t.receiptType].push(parseInt(t.fee));
+            total += parseInt(t.fee);
+          });
+        } catch (error) {
+          errors = error;
+        }
+        const rrr = await generateRRR(total);
 
-      return { data: { tickets: tickets, rrr: rrr }, error: errors };
+        return {
+          data: {
+            tickets: tickets,
+            rrr: rrr,
+            deviceName: deviceName,
+            date: date
+          },
+          error: errors
+        };
+      }
     };
-    const parseData = (data, rrr) => {
+    const parseData = (data, rrr, deviceName, date) => {
       let html = "";
+      if (rrr === undefined) {
+        return <div dangerouslySetInnerHTML={{ __html: "" }}></div>;
+      }
       html += `
       <div class="card-list">
-        <div class="card-title">RRR Number: ${rrr}</div>
+        <div class="card-title">Payment for ${deviceName}<br> Generated RRR Number: <i style="color:white">${rrr}</i>  <br> Selected Date: ${date}</div>
         <div class="card-body">
+       
           <table>
             <thead>
               <tr>
@@ -94,9 +167,10 @@ class Remit extends Component {
       <td>${currencyFormat(total)}</td>
     </tr>
        </tbody>
-          </table>
+          </table><br>
+          
         </div>
-      </div>`;
+      </div><h1 style="color:red">*Please save the RRR Number or print this page for your reference</h1>`;
 
       return <div dangerouslySetInnerHTML={{ __html: html }}></div>;
     };
@@ -107,6 +181,24 @@ class Remit extends Component {
     };
     const handleChange = event => {
       this.setState({ [event.target.name]: event.target.value });
+    };
+    const checkRRRStatus = async rrr => {
+      const merchantId = "2547916";
+      const apiKey = "1946";
+      const apiHash = CryptoJS.SHA512(rrr + apiKey + merchantId);
+      const checkRRRStatusUrl = `https://cors-anywhere.herokuapp.com/https://remitademo.net/remita/ecomm/${merchantId}/${rrr}/${apiHash}/status.reg`;
+      const response = await axios({
+        url: checkRRRStatusUrl,
+        method: "get",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `remitaConsumerKey=${merchantId},remitaConsumerToken=${apiHash}`,
+          "Access-Control-Allow-Origin": "*",
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      });
+
+      return response.data;
     };
     const generateRRR = async amount => {
       const merchantId = "2547916";
@@ -151,6 +243,7 @@ class Remit extends Component {
           const mutate = await API.graphql(
             graphqlOperation(mutations.createRemita, {
               input: {
+                id: data.rrr + orderId,
                 rrr: data.RRR,
                 date: dateFormat(new Date()),
                 totalAmount: totalAmount,
@@ -173,16 +266,26 @@ class Remit extends Component {
         <div className="header"></div>
         <div className="main">
           {this.state.load ? (
-            <Async promiseFn={getData} date={this.state.singleDay}>
+            <Async
+              promiseFn={getData}
+              rrr={this.state.rrr}
+              date={this.state.singleDay}
+              deviceName={this.state.deviceName}
+            >
               {({ data, rrr, error, isPending }) => {
                 if (isPending) {
-                  return <img src={loadingImg} alt="Loading ..." />;
+                  return (
+                    <center>
+                      <img src={loadingImg} alt="Loading ..." />
+                    </center>
+                  );
                 }
                 if (error) {
                   return (
-                    <>
+                    <div className="main">
                       <img src={errorImg} alt="Error" />
-                    </>
+                      <p>{console.log(error)}</p>
+                    </div>
                   );
                 }
                 if (data) {
@@ -194,52 +297,32 @@ class Remit extends Component {
                       </div>
                     );
                   } else {
-                    const result = parseData(data.data.tickets, data.data.rrr);
+                    let result = "";
+                    console.log(data.data);
+                    if (data.data.tickets) {
+                      result = parseData(
+                        data.data.tickets,
+                        data.data.rrr,
+                        data.data.deviceName,
+                        data.data.date
+                      );
+                    } else {
+                      result = data.data.result;
+                    }
                     if (result.props.dangerouslySetInnerHTML.__html !== "") {
                       return result;
                     } else {
                       return (
                         <div className="card-list">
-                          <div className="card-title">Generate RRR</div>
+                          <div className="card-title">
+                            No Record Available Try Again
+                          </div>
                           <div className="card-body form-item">
-                            <form onSubmit={handleSubmit} method="post">
-                              <label>No Data for this Date</label>
-                              <input
-                                type="date"
-                                name="singleDay"
-                                min="2010-01-01"
-                                value={this.state.singleDay}
-                                onChange={handleChange}
-                                required
-                              />
-                              <input
-                                type="text"
-                                onChange={handleChange}
-                                placeholder="Name"
-                                name="name"
-                                required
-                              />
-                              <input
-                                type="email"
-                                onChange={handleChange}
-                                placeholder="email"
-                                name="email"
-                                required
-                              />
-                              <input
-                                type="text"
-                                onChange={handleChange}
-                                placeholder="Phone No"
-                                name="phone"
-                                required
-                              />
-                              <br />
-                              <input
-                                name="generaterrr"
-                                type="submit"
-                                value="Generate RRR"
-                              />
-                            </form>
+                            <RRRForm
+                              handleChange={handleChange}
+                              handleSubmit={handleSubmit}
+                              singleDay={this.state.singleDay}
+                            />
                           </div>
                         </div>
                       );
@@ -250,44 +333,18 @@ class Remit extends Component {
             </Async>
           ) : (
             <div className="card-list">
-              <div className="card-title">Generate RRR</div>
-              <div className="card-body form-item">
-                <form onSubmit={handleSubmit} method="post">
-                  <input
-                    type="date"
-                    name="singleDay"
-                    min="2010-01-01"
-                    value={this.state.singleDay}
-                    onChange={handleChange}
-                  />
-                  <input
-                    type="text"
-                    onChange={handleChange}
-                    placeholder="Name"
-                    name="name"
-                    required
-                  />
-                  <input
-                    type="email"
-                    onChange={handleChange}
-                    placeholder="email"
-                    name="email"
-                    required
-                  />
-                  <input
-                    type="text"
-                    onChange={handleChange}
-                    placeholder="Phone No"
-                    name="phone"
-                    required
-                  />
-                  <br />
-                  <input
-                    name="generaterrr"
-                    type="submit"
-                    value="Generate RRR"
-                  />
-                </form>
+              <div className="card-title">
+                Use This form to generate RRR Number
+              </div>
+              <div
+                className="card-body form-item"
+                style={{ alignSelf: "center" }}
+              >
+                <RRRForm
+                  handleChange={handleChange}
+                  handleSubmit={handleSubmit}
+                  singleDay={this.state.singleDay}
+                />
               </div>
             </div>
           )}
