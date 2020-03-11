@@ -14,7 +14,8 @@ class Header extends Component {
     return (
       <div className="title">
         <a href="/" className="logo">
-          AJISAQ Ticketing Platform JUMM MIS
+          <img className="logoImg" src="logo.png" alt="logo" />
+          AJISAQ TIKETING SYSTEM FOR AIRS JUMM
         </a>
 
         <nav>

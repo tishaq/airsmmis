@@ -149,14 +149,18 @@ class App extends Component {
             if (isPending) {
               return (
                 <div className="main">
-                  <img src={loadingImg} alt="Loading ..." />
+                  <center>
+                    <img src={loadingImg} alt="Loading ..." />
+                  </center>
                 </div>
               );
             }
             if (error) {
               return (
                 <div className="main">
-                  <img src={errorImg} alt="Error" />
+                  <center>
+                    <img src={errorImg} alt="Loading ..." />
+                  </center>
                 </div>
               );
             }
@@ -164,8 +168,10 @@ class App extends Component {
               if (data.errors === null) {
                 return (
                   <div className="main">
-                    <img src={errorImg} alt="Error" />
-                    <p>{data.errors.errors[0].message}</p>
+                    <center>
+                      <img src={errorImg} alt="Error" />
+                      <p>{data.errors.errors[0].message}</p>
+                    </center>
                   </div>
                 );
               } else {
@@ -175,7 +181,9 @@ class App extends Component {
                 } else {
                   return (
                     <div className="main">
-                      <img src={nodataImg} alt="No Data" />
+                      <center>
+                        <img src={nodataImg} alt="No Data" />
+                      </center>
                     </div>
                   );
                 }

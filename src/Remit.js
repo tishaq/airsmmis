@@ -57,17 +57,6 @@ class Remit extends Component {
             </div>
             </div>
         `;
-        if (result.status === "00") {
-          const mutate = await API.graphql(
-            graphqlOperation(mutations.updateRemita, {
-              input: {
-                id: result.RRR + result.orderId,
-                status: true
-              }
-            })
-          );
-          console.log(mutate);
-        }
         return {
           data: {
             result: <div dangerouslySetInnerHTML={{ __html: html }}></div>

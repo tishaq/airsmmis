@@ -11,20 +11,24 @@
   color: var(--headingColor);
 }
 :root {
-  /* theme 1 greener  
+  /*theme 1 greener   */
   --light: #faf4f4;
   --dark: rgb(90, 0, 40);
   --ligthdark: rgb(243, 219, 234);
   --headingColor: white;
   --contentColor: rgb(2, 41, 5);
-*/
+
   /* theme 2 dark maron    */
 
-  --light: #faf4f4;
+  /* --light: #faf4f4;
   --dark: green;
   --ligthdark: rgba(226, 246, 231, 0.8);
   --headingColor: rgb(197, 197, 167);
-  --contentColor: rgb(2, 41, 5);
+  --contentColor: rgb(2, 41, 5); */
+}
+.logoImg {
+  width: 5rem;
+  height: 5rem;
 }
 input,
 select {
@@ -261,6 +265,10 @@ label {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.search-items p {
+  color: var(--dark);
 }
 
 .search-items div {
